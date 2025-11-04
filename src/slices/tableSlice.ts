@@ -3,13 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 interface Row {
   id: string;
-  name: string;
-  email: string;
-  age: number;
-  role: string;
-  department: string;
-  location: string;
+  name?: string;
+  email?: string;
+  age?: number | string;
+  role?: string;
+  [key: string]: any;
 }
+
 
 interface Column {
   key: string;
@@ -57,7 +57,7 @@ const tableSlice = createSlice({
     setColumns: (state, action: PayloadAction<Column[]>) => {
       state.columns = action.payload;
     },
-    setRows: (state, action: PayloadAction<Row[]>) => {
+    setRows: (state, action: PayloadAction<any[]>) => {
       state.rows = action.payload;
     },
     updateRow: (state, action: PayloadAction<{ id: string; updates: Partial<Row> }>) => {

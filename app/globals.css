@@ -39,3 +39,8 @@ html {
 * {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
+.MuiTableCell-root input {
+  width: 100%;
+  background: white;
+  border-radius: 4px;
+}

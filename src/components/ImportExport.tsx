@@ -1,12 +1,15 @@
 'use client';
 
+import Papa, { ParseResult } from 'papaparse';
+import { saveAs } from 'file-saver';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setRows } from '../slices/tableSlice';
 import { RootState } from '../store';
 import { Button, Snackbar, Alert } from '@mui/material';
-import Papa from 'papaparse';
-import { saveAs } from 'file-saver';
+
+// 🧩 Local CSV row type to avoid collision with Redux Row
+type CSVRow = Record<string, string | number | boolean | null | undefined>;
 
 export default function ImportExport() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -14,7 +17,6 @@ export default function ImportExport() {
   const { rows, columns } = useSelector((s: RootState) => s.table);
   const [error, setError] = useState<string | null>(null);
 
-  // 📥 Handle CSV Import
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -22,14 +24,14 @@ export default function ImportExport() {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      complete: (results) => {
+      complete: (results: ParseResult<CSVRow>) => {
         if (!Array.isArray(results.data)) {
           setError('Invalid CSV format.');
           return;
         }
 
         try {
-          const parsedRows = results.data.map((row: any, i: number) => ({
+          const parsedRows: CSVRow[] = results.data.map((row: CSVRow) => ({
             id: crypto.randomUUID(),
             ...row,
           }));
@@ -44,11 +46,10 @@ export default function ImportExport() {
     });
   };
 
-  // 📤 Handle CSV Export
   const handleExport = () => {
     const visibleCols = columns.filter((c) => c.visible);
-    const csvRows = rows.map((r) => {
-      const filtered: any = {};
+    const csvRows = rows.map((r: CSVRow) => {
+      const filtered: CSVRow = {};
       visibleCols.forEach((c) => {
         filtered[c.label] = r[c.key] ?? '';
       });
@@ -69,19 +70,12 @@ export default function ImportExport() {
         style={{ display: 'none' }}
         onChange={handleImport}
       />
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={() => fileInputRef.current?.click()}
-      >
+
+      <Button variant="outlined" color="primary" onClick={() => fileInputRef.current?.click()}>
         Import CSV
       </Button>
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={handleExport}
-        sx={{ ml: 1 }}
-      >
+
+      <Button variant="contained" color="secondary" onClick={handleExport} sx={{ ml: 1 }}>
         Export CSV
       </Button>
 
