@@ -69,12 +69,14 @@ export default function DataTable() {
 
     if (sortKey) {
       data.sort((a, b) => {
-        const A = a[sortKey] ?? '';
-        const B = b[sortKey] ?? '';
+        const A = (a as Record<string, any>)[sortKey] ?? '';
+        const B = (b as Record<string, any>)[sortKey] ?? '';
         if (A === B) return 0;
         return sortDir === 'asc' ? (A > B ? 1 : -1) : (A > B ? -1 : 1);
       });
     }
+    
+    
 
     return data;
   }, [allRows, search, sortKey, sortDir]);
